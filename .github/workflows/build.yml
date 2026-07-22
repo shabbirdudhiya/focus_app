@@ -40,9 +40,9 @@ jobs:
         choco install mingw -y --no-progress
         echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" >> $GITHUB_PATH
 
-    - name: Build Focus App
+    - name: Build Focus App (Full Version)
       run: |
-        g++ -static -static-libgcc -static-libstdc++ -D_UNICODE -DUNICODE -o focus_app.exe focus_app_simple.cpp -luser32 -lgdi32 -lcomctl32 -lshell32 -lpsapi
+        g++ -static -static-libgcc -static-libstdc++ -D_UNICODE -DUNICODE -o focus_app.exe focus_app_full.cpp -luser32 -lgdi32 -lcomctl32 -lshell32 -lpsapi
 
     - name: Upload executable
       uses: actions/upload-artifact@v4
@@ -56,16 +56,20 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: focus_app.exe
-        name: Focus App v1.0
-        tag_name: v1.0
+        name: Focus App v1.1
+        tag_name: v1.1
         body: |
-          Lightweight Windows focus app with floating timer and app blocking warnings.
+          Lightweight Windows focus app with modern design features.
           
           Features:
+          - Modern Clock View with current time and date
+          - Focus View with Pomodoro timer
+          - Theme Toggle (Dark/Light mode)
+          - Fullscreen mode
           - Floating timer window (always on top)
-          - Pomodoro timer (25min focus, 5min break)
           - App blocking with warnings
           - Task tracking
+          - Session tracking with progress dots
           - Configurable durations
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

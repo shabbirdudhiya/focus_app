@@ -1,8 +1,8 @@
 @echo off
 setlocal
 
-:: Simple Focus App Compiler for Windows
-:: Uses g++ (MinGW) to compile the application
+:: Focus App - Full Version Compiler
+:: Uses g++ (MinGW) to compile the application with all features
 
 :: Check if g++ exists
 where g++ >nul 2>&1
@@ -25,12 +25,13 @@ cd /d "%SCRIPT_DIR%"
 
 echo.
 echo ========================================
-echo    Focus App - Compiling...
+echo    Focus App - Full Version
+    Compiling with all features...
 echo ========================================
 echo.
 
 :: Compile with static linking for a single executable
-g++ -static -static-libgcc -static-libstdc++ -D_UNICODE -DUNICODE -o focus_app.exe focus_app_simple.cpp -luser32 -lgdi32 -lcomctl32 -lshell32 -lpsapi
+g++ -static -static-libgcc -static-libstdc++ -D_UNICODE -DUNICODE -o focus_app.exe focus_app_full.cpp -luser32 -lgdi32 -lcomctl32 -lshell32 -lpsapi
 
 if errorlevel 1 (
     echo.
@@ -43,9 +44,19 @@ if errorlevel 1 (
 echo.
 echo ========================================
 echo    SUCCESS! focus_app.exe created
+    with all features:
 echo ========================================
 echo.
-echo To run the app, double-click focus_app.exe
-echo Or run: focus_app.exe
-necho.
+echo Features included:
+echo   - Modern Clock View
+echo   - Focus View with Pomodoro timer
+echo   - Theme Toggle (Dark/Light)
+echo   - Fullscreen mode
+echo   - Floating timer window
+echo   - App blocking warnings
+echo   - Session tracking
+echo   - Configurable settings
+echo.
+echo To run: focus_app.exe
+echo.
 pause
