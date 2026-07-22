@@ -59,27 +59,13 @@ jobs:
         path: focus_app.exe
         retention-days: 30
 
-    - name: Create Release (on main branch)
+    - name: Commit executable to repository
       if: github.ref == 'refs/heads/main'
-      uses: softprops/action-gh-release@v2
-      with:
-        files: focus_app.exe
-        name: Focus App v1.3
-        tag_name: v1.3
-        body: |
-          Lightweight Windows focus app with modern design features.
-          
-          Features:
-          - Modern Clock View with current time and date
-          - Focus View with Pomodoro timer
-          - Theme Toggle (Dark/Light mode)
-          - Fullscreen mode
-          - Floating timer window (always on top)
-          - App blocking with warnings
-          - Task tracking
-          - Session tracking with progress dots
-          - Configurable durations
-          
-          All tests pass before building!
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        git add focus_app.exe
+        git commit -m "Auto-build: Update compiled executable [skip ci]"
+        git push
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
