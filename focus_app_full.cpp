@@ -64,7 +64,7 @@ void ToggleView();
 void ToggleFullscreen();
 void CheckBlockedApps();
 std::wstring FormatTime(int seconds);
-std::wstring GetCurrentTime();
+std::wstring GetCurrentTimeStr();
 std::wstring GetCurrentDate();
 bool IsProcessBlocked(const std::wstring& processName);
 void ShowWarning(const std::wstring& message);
@@ -205,7 +205,7 @@ std::wstring FormatTime(int seconds)
 }
 
 // Get current time as HH:MM:SS
-std::wstring GetCurrentTime()
+std::wstring GetCurrentTimeStr()
 {
     auto now = std::chrono::system_clock::now();
     auto in_time_t = std::chrono::system_clock::to_time_t(now);
@@ -576,7 +576,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 TextOut(hdc, rc.left + 20, rc.top + 80, L"Current Time", 12);
                 
                 SelectObject(hdc, hFontDigital);
-                std::wstring currentTime = GetCurrentTime();
+                std::wstring currentTime = GetCurrentTimeStr();
                 TextOut(hdc, rc.left + 50, rc.top + 120, currentTime.c_str(), currentTime.length());
                 
                 SelectObject(hdc, hFont);
