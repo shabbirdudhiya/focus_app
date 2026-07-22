@@ -1,0 +1,12 @@
+#pragma once
+
+#define IDI_APP_ICON 101
+#define IDR_MAIN_MENU 102
+#define ID_TRAY_ICON 103
+#define ID_TRAY_EXIT 1001
+#define ID_TRAY_SHOW 1002
+#define ID_TRAY_SETTINGS 1003
+#define ID_TRAY_PAUSE 1004
+#define ID_TRAY_RESUME 1005
+
+#define WM_TRAYICON (WM_USER + 1)

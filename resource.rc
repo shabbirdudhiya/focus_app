@@ -1,0 +1,49 @@
+#include "resource.h"
+
+IDI_APP_ICON ICON "app_icon.ico"
+
+IDR_MAIN_MENU MENU
+BEGIN
+    POPUP "Tray Menu"
+    BEGIN
+        MENUITEM "Show Timer", ID_TRAY_SHOW
+        MENUITEM "Settings", ID_TRAY_SETTINGS
+        MENUITEM "Pause Monitoring", ID_TRAY_PAUSE
+        MENUITEM "Resume Monitoring", ID_TRAY_RESUME
+        MENUITEM SEPARATOR
+        MENUITEM "Exit", ID_TRAY_EXIT
+    END
+END
+
+// Settings Dialog
+IDD_SETTINGS DIALOGEX 0, 0, 350, 300
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Focus App Settings"
+FONT 8, "Segoe UI", 0, 0, 0x0
+BEGIN
+    GROUPBOX "Timer Settings", IDC_STATIC, 10, 10, 330, 80
+    LTEXT "Focus Duration (minutes):", IDC_STATIC, 20, 30, 120, 15
+    EDITTEXT 1001, 150, 25, 50, 20, ES_NUMBER | ES_AUTOHSCROLL
+    LTEXT "Break Duration (minutes):", IDC_STATIC, 20, 55, 120, 15
+    EDITTEXT 1002, 150, 50, 50, 20, ES_NUMBER | ES_AUTOHSCROLL
+    
+    GROUPBOX "Monitoring Settings", IDC_STATIC, 10, 100, 330, 80
+    LTEXT "Warning Delay (minutes):", IDC_STATIC, 20, 120, 120, 15
+    EDITTEXT 1003, 150, 115, 50, 20, ES_NUMBER | ES_AUTOHSCROLL
+    CONTROL "Show Warnings", 1004, "BUTTON", BS_AUTOCHECKBOX | WS_TABSTOP, 20, 145, 100, 15
+    CONTROL "Always on Top", 1005, "BUTTON", BS_AUTOCHECKBOX | WS_TABSTOP, 150, 145, 100, 15
+    CONTROL "Auto Start Timer", 1006, "BUTTON", BS_AUTOCHECKBOX | WS_TABSTOP, 250, 145, 100, 15
+    
+    GROUPBOX "Blacklisted Apps", IDC_STATIC, 10, 190, 330, 50
+    EDITTEXT 1007, 20, 210, 320, 20, ES_AUTOHSCROLL
+    LTEXT "Comma-separated list (e.g., whatsapp,facebook,instagram)", IDC_STATIC, 20, 230, 320, 15
+    
+    GROUPBOX "Whitelisted Apps", IDC_STATIC, 10, 250, 330, 40
+    EDITTEXT 1008, 20, 270, 320, 20, ES_AUTOHSCROLL
+    
+    DEFPUSHBUTTON "OK", IDOK, 200, 280, 60, 20
+    PUSHBUTTON "Cancel", IDCANCEL, 270, 280, 60, 20
+END
+
+// Include manifest
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "FocusApp.manifest"
