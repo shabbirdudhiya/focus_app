@@ -4,7 +4,7 @@ A modern, lightweight focus app for Windows that helps you stay productive with 
 
 ## Features
 
-### ✅ Core Features
+### ✅ Core Features 
 - **Modern Clock View** - Displays current time and date with elegant design
 - **Focus View** - Pomodoro-style timer with task tracking
 - **Theme Toggle** - Switch between Dark and Light modes
