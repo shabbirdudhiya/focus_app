@@ -21,15 +21,17 @@ jobs:
         echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" >> $GITHUB_PATH
 
     - name: Compile Tests
+      shell: cmd
       run: |
         cd tests
         g++ -static -static-libgcc -static-libstdc++ -D_UNICODE -DUNICODE -o test_basic.exe test_basic.cpp
         cd ..
 
     - name: Run Unit Tests
+      shell: cmd
       run: |
-        .\tests\test_basic.exe
-        echo "All tests passed!"
+        tests\test_basic.exe
+        echo All tests passed!
 
   build:
     name: Build Executable
@@ -46,6 +48,7 @@ jobs:
         echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" >> $GITHUB_PATH
 
     - name: Build Focus App (Full Version)
+      shell: cmd
       run: |
         g++ -static -static-libgcc -static-libstdc++ -D_UNICODE -DUNICODE -o focus_app.exe focus_app_full.cpp -luser32 -lgdi32 -lcomctl32 -lshell32 -lpsapi
 
@@ -61,8 +64,8 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: focus_app.exe
-        name: Focus App v1.2
-        tag_name: v1.2
+        name: Focus App v1.3
+        tag_name: v1.3
         body: |
           Lightweight Windows focus app with modern design features.
           
