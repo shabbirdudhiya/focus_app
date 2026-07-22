@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Focus Clock App</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Tailwind Config for Dark Mode -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+    
+    .font-digital { 
+      font-family: 'Share Tech Mono', monospace; 
+    }
+    
+    /* Subtle fade-in animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-500 min-h-screen flex flex-col font-sans">
+
+  <!-- Top Navigation Bar -->
+  <nav class="w-full max-w-5xl mx-auto p-6 flex justify-end items-center gap-4">
+    <!-- Fullscreen Toggle -->
+    <button id="btn-fullscreen" class="p-3 rounded-full bg-slate-200 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400" aria-label="Toggle Fullscreen">
+      <i data-lucide="maximize-2" id="icon-maximize"></i>
+      <i data-lucide="minimize-2" id="icon-minimize" class="hidden"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button id="btn-theme" class="p-3 rounded-full bg-slate-200 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400" aria-label="Toggle Dark Mode">
+      <i data-lucide="sun" id="icon-sun" class="hidden"></i>
+      <i data-lucide="moon" id="icon-moon"></i>
+    </button>
+  </nav>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 w-full max-w-5xl mx-auto flex items-center justify-center p-6 relative overflow-hidden">
+    
+    <!-- 1. Clock View -->
+    <div id="view-clock" class="flex flex-col items-center justify-center h-full animate-fade-in">
+      <h2 class="text-xl md:text-2xl font-light text-slate-500 dark:text-slate-400 mb-4 tracking-widest uppercase">Current Time</h2>
+      <div id="clock-display" class="text-7xl md:text-9xl font-digital text-slate-800 dark:text-slate-100 tracking-tighter drop-shadow-sm">
+        00:00:00
+      </div>
+      <p id="date-display" class="mt-6 text-slate-500 dark:text-slate-400 text-lg"></p>
+    </div>
+
+    <!-- 2. Focus View -->
+    <div id="view-focus" class="hidden flex-col items-center justify-center h-full animate-fade-in w-full max-w-md mx-auto transition-colors duration-700">
+      
+      <!-- Current Time in Focus Mode -->
+      <div class="text-sm font-medium text-slate-400 dark:text-slate-500 mb-4 tracking-widest uppercase flex items-center gap-2">
+        <i data-lucide="clock" class="w-4 h-4"></i>
+        <span id="focus-mini-clock">00:00</span>
+      </div>
+
+      <!-- Intent / Task Input -->
+      <input type="text" id="task-input" placeholder="What are you working on?" class="bg-transparent border-b-2 border-transparent hover:border-slate-300 focus:border-slate-500 dark:hover:border-slate-700 dark:focus:border-slate-500 text-center outline-none text-xl md:text-2xl mb-6 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 w-full pb-2 transition-all">
+
+      <h2 class="text-xl md:text-2xl font-light mb-8 tracking-widest uppercase text-slate-500 dark:text-slate-400 flex items-center gap-3 relative">
+        <span id="focus-title">Ready to Focus?</span>
+        <span id="paused-badge" class="hidden text-sm bg-slate-200 dark:bg-slate-700 px-2 py-1 rounded">PAUSED</span>
+      </h2>
+      
+      <div id="focus-display" class="text-8xl md:text-9xl font-digital tracking-tighter mb-10 drop-shadow-sm flex items-center gap-4">
+        25:00
+      </div>
+
+      <!-- Controls -->
+      <div class="flex gap-4 mb-8" id="focus-controls-idle">
+        <button id="btn-start-focus" class="px-8 py-4 rounded-full bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900 hover:opacity-90 font-semibold text-lg flex items-center gap-2 transition-transform hover:scale-105">
+          <i data-lucide="brain"></i> Start
+        </button>
+        <button id="btn-start-break" class="px-6 py-4 rounded-full bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-700 font-semibold text-lg transition-transform hover:scale-105">
+          Break
+        </button>
+        <button id="btn-toggle-settings" class="p-4 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+          <i data-lucide="settings-2"></i>
+        </button>
+      </div>
+
+      <div class="hidden gap-4 mb-8" id="focus-controls-active">
+        <button id="btn-pause-resume" class="px-8 py-4 rounded-full bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900 hover:opacity-90 font-semibold text-lg flex items-center gap-2 transition-transform hover:scale-105">
+          <span id="icon-pause-wrap" class="flex items-center gap-2"><i data-lucide="pause"></i> Pause</span>
+          <span id="icon-resume-wrap" class="hidden items-center gap-2"><i data-lucide="play"></i> Resume</span>
+        </button>
+        <button id="btn-stop" class="px-6 py-4 rounded-full bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-700 font-semibold text-lg flex items-center gap-2 transition-transform hover:scale-105">
+          <i data-lucide="rotate-ccw"></i> Stop
+        </button>
+      </div>
+
+      <!-- Settings Panel -->
+      <div id="settings-panel" class="hidden gap-6 mb-8 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-2xl animate-fade-in text-slate-700 dark:text-slate-300">
+        <div class="flex flex-col items-center">
+          <label class="text-xs uppercase tracking-wider mb-2">Focus (min)</label>
+          <input type="number" id="input-focus-duration" value="25" class="w-20 text-center bg-white dark:bg-slate-900 p-2 rounded-lg border-none outline-none focus:ring-2 focus:ring-slate-400">
+        </div>
+        <div class="flex flex-col items-center">
+          <label class="text-xs uppercase tracking-wider mb-2">Break (min)</label>
+          <input type="number" id="input-break-duration" value="5" class="w-20 text-center bg-white dark:bg-slate-900 p-2 rounded-lg border-none outline-none focus:ring-2 focus:ring-slate-400">
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Floating Action Menu -->
+  <div class="fixed bottom-8 right-8 flex flex-col items-end gap-3 z-50">
+    <div id="fab-menu" class="hidden flex-col bg-white dark:bg-slate-800 p-2 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 animate-fade-in origin-bottom-right">
+      
+      <!-- Session Tracking (Moved to FAB Menu) -->
+      <div class="px-4 py-3 mb-2 border-b border-slate-100 dark:border-slate-700 flex flex-col gap-2 min-w-[160px]">
+        <div class="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold flex items-center gap-2">
+          <i data-lucide="activity" class="w-4 h-4"></i>
+          Progress: <span id="session-count-text" class="text-slate-900 dark:text-white font-bold text-sm">0</span>
+        </div>
+        <div id="streak-dots" class="flex flex-wrap items-center gap-1.5 mt-1">
+          <!-- Dots injected by JS -->
+        </div>
+      </div>
+
+      <button id="tab-clock" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white">
+        <i data-lucide="clock" class="w-4 h-4"></i> Clock
+      </button>
+      <button id="tab-focus" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50">
+        <i data-lucide="brain" class="w-4 h-4"></i> Focus
+      </button>
+    </div>
+    <button id="btn-fab" class="p-4 rounded-full bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900 shadow-lg hover:scale-105 transition-transform">
+      <i data-lucide="menu" id="icon-menu"></i>
+      <i data-lucide="x" id="icon-x" class="hidden"></i>
+    </button>
+  </div>
+
+  <!-- Footer -->
+  <footer class="py-6 text-center text-slate-400 dark:text-slate-600 text-sm">
+    Stay Focused.
+  </footer>
+
+  <!-- Application Logic -->
+  <script>
+    // Initialize Icons
+    lucide.createIcons();
+
+    // --- UTILS ---
+    const formatDuration = (totalSeconds) => {
+      const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+      const s = (totalSeconds % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    };
+
+    // --- GLOBAL STATE ---
+    let activeTab = 'clock'; // 'clock' | 'focus'
+    let isDarkMode = true;
+    let isMenuOpen = false;
+    let isFullscreen = false;
+
+    // Focus State
+    let focusDuration = 25; 
+    let breakDuration = 5;  
+    let mode = 'idle'; // 'idle' | 'focus' | 'break'
+    let isPaused = false;
+    let timeLeft = focusDuration * 60;
+    let sessionsCompleted = 0;
+    let timerInterval = null;
+    let showSettings = false;
+
+    // --- DOM ELEMENTS ---
+    const htmlEl = document.documentElement;
+    // Toggles
+    const btnTheme = document.getElementById('btn-theme');
+    const iconSun = document.getElementById('icon-sun');
+    const iconMoon = document.getElementById('icon-moon');
+    const btnFullscreen = document.getElementById('btn-fullscreen');
+    const iconMaximize = document.getElementById('icon-maximize');
+    const iconMinimize = document.getElementById('icon-minimize');
+    // Nav / FAB
+    const btnFab = document.getElementById('btn-fab');
+    const fabMenu = document.getElementById('fab-menu');
+    const iconMenu = document.getElementById('icon-menu');
+    const iconX = document.getElementById('icon-x');
+    const tabClock = document.getElementById('tab-clock');
+    const tabFocus = document.getElementById('tab-focus');
+    // Views
+    const viewClock = document.getElementById('view-clock');
+    const viewFocus = document.getElementById('view-focus');
+    // Clock View
+    const clockDisplay = document.getElementById('clock-display');
+    const dateDisplay = document.getElementById('date-display');
+    // Focus View
+    const focusMiniClock = document.getElementById('focus-mini-clock');
+    const focusTitle = document.getElementById('focus-title');
+    const pausedBadge = document.getElementById('paused-badge');
+    const focusDisplay = document.getElementById('focus-display');
+    const controlsIdle = document.getElementById('focus-controls-idle');
+    const controlsActive = document.getElementById('focus-controls-active');
+    const btnStartFocus = document.getElementById('btn-start-focus');
+    const btnStartBreak = document.getElementById('btn-start-break');
+    const btnToggleSettings = document.getElementById('btn-toggle-settings');
+    const btnPauseResume = document.getElementById('btn-pause-resume');
+    const btnStop = document.getElementById('btn-stop');
+    const iconPauseWrap = document.getElementById('icon-pause-wrap');
+    const iconResumeWrap = document.getElementById('icon-resume-wrap');
+    const settingsPanel = document.getElementById('settings-panel');
+    const inputFocusDuration = document.getElementById('input-focus-duration');
+    const inputBreakDuration = document.getElementById('input-break-duration');
+    const streakDots = document.getElementById('streak-dots');
+    const sessionCountText = document.getElementById('session-count-text');
+
+
+    // --- THEME & FULLSCREEN ---
+    const updateThemeIcon = () => {
+      if (isDarkMode) {
+        htmlEl.classList.add('dark');
+        iconSun.classList.remove('hidden');
+        iconMoon.classList.add('hidden');
+      } else {
+        htmlEl.classList.remove('dark');
+        iconSun.classList.add('hidden');
+        iconMoon.classList.remove('hidden');
+      }
+    };
+
+    btnTheme.addEventListener('click', () => {
+      isDarkMode = !isDarkMode;
+      updateThemeIcon();
+    });
+
+    btnFullscreen.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => console.log(err));
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      isFullscreen = !!document.fullscreenElement;
+      if (isFullscreen) {
+        iconMaximize.classList.add('hidden');
+        iconMinimize.classList.remove('hidden');
+      } else {
+        iconMaximize.classList.remove('hidden');
+        iconMinimize.classList.add('hidden');
+      }
+    });
+
+    // --- TABS & NAVIGATION ---
+    const switchTab = (tab) => {
+      activeTab = tab;
+      
+      // Update DOM visibility
+      if (tab === 'clock') {
+        viewClock.classList.remove('hidden');
+        viewClock.classList.add('flex');
+        viewFocus.classList.add('hidden');
+        viewFocus.classList.remove('flex');
+        
+        tabClock.className = "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white";
+        tabFocus.className = "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50";
+      } else {
+        viewFocus.classList.remove('hidden');
+        viewFocus.classList.add('flex');
+        viewClock.classList.add('hidden');
+        viewClock.classList.remove('flex');
+        
+        tabFocus.className = "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white";
+        tabClock.className = "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50";
+      }
+      
+      // Close menu
+      isMenuOpen = false;
+      renderMenu();
+    };
+
+    const renderMenu = () => {
+      if (isMenuOpen) {
+        fabMenu.classList.remove('hidden');
+        fabMenu.classList.add('flex');
+        iconMenu.classList.add('hidden');
+        iconX.classList.remove('hidden');
+      } else {
+        fabMenu.classList.add('hidden');
+        fabMenu.classList.remove('flex');
+        iconMenu.classList.remove('hidden');
+        iconX.classList.add('hidden');
+      }
+    };
+
+    btnFab.addEventListener('click', () => {
+      isMenuOpen = !isMenuOpen;
+      renderMenu();
+    });
+
+    tabClock.addEventListener('click', () => switchTab('clock'));
+    tabFocus.addEventListener('click', () => switchTab('focus'));
+
+
+    // --- CLOCK LOGIC ---
+    const updateClock = () => {
+      const now = new Date();
+      clockDisplay.textContent = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      dateDisplay.textContent = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      
+      // Update mini clock in Focus View
+      focusMiniClock.textContent = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+    };
+    setInterval(updateClock, 1000);
+    updateClock();
+
+
+    // --- FOCUS LOGIC ---
+    const renderFocusUI = () => {
+      // Time
+      focusDisplay.textContent = formatDuration(timeLeft);
+
+      // Colors & Title
+      viewFocus.classList.remove('text-red-600', 'dark:text-red-400', 'text-green-600', 'dark:text-green-400', 'text-slate-800', 'dark:text-slate-100');
+      if (mode === 'focus') {
+        viewFocus.classList.add('text-red-600', 'dark:text-red-400');
+        focusTitle.textContent = 'Deep Work';
+      } else if (mode === 'break') {
+        viewFocus.classList.add('text-green-600', 'dark:text-green-400');
+        focusTitle.textContent = 'Take a Break';
+      } else {
+        viewFocus.classList.add('text-slate-800', 'dark:text-slate-100');
+        focusTitle.textContent = 'Ready to Focus?';
+      }
+
+      // Badges & Buttons
+      if (isPaused) {
+        pausedBadge.classList.remove('hidden');
+        iconPauseWrap.classList.add('hidden');
+        iconResumeWrap.classList.remove('hidden');
+        iconResumeWrap.classList.add('flex');
+      } else {
+        pausedBadge.classList.add('hidden');
+        iconPauseWrap.classList.remove('hidden');
+        iconPauseWrap.classList.add('flex');
+        iconResumeWrap.classList.add('hidden');
+      }
+
+      // Idle vs Active states
+      if (mode === 'idle') {
+        controlsIdle.classList.remove('hidden');
+        controlsIdle.classList.add('flex');
+        controlsActive.classList.add('hidden');
+        controlsActive.classList.remove('flex');
+        
+        if (showSettings) {
+          settingsPanel.classList.remove('hidden');
+          settingsPanel.classList.add('flex');
+        } else {
+          settingsPanel.classList.add('hidden');
+          settingsPanel.classList.remove('flex');
+        }
+      } else {
+        controlsIdle.classList.add('hidden');
+        controlsIdle.classList.remove('flex');
+        controlsActive.classList.remove('hidden');
+        controlsActive.classList.add('flex');
+        settingsPanel.classList.add('hidden');
+        settingsPanel.classList.remove('flex');
+      }
+
+      // Render Session Tracking Text
+      sessionCountText.textContent = sessionsCompleted;
+
+      // Render Dots
+      streakDots.innerHTML = '';
+      const totalDots = Math.max(5, sessionsCompleted);
+      for (let i = 0; i < totalDots; i++) {
+        const dot = document.createElement('div');
+        dot.className = `w-3 h-3 rounded-full transition-colors duration-500 ${i < sessionsCompleted ? 'bg-slate-800 dark:bg-slate-200 shadow-sm' : 'bg-slate-300 dark:bg-slate-700'}`;
+        dot.title = `Session ${i + 1}`;
+        streakDots.appendChild(dot);
+      }
+
+      // Title Update
+      if (mode !== 'idle') {
+        const status = mode === 'focus' ? 'Deep Work' : 'Break';
+        document.title = `(${formatDuration(timeLeft)}) ${status} ${isPaused ? '- Paused' : ''}`;
+      } else {
+        document.title = 'Focus Clock App';
+      }
+    };
+
+    const startTimerInterval = () => {
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (!isPaused && mode !== 'idle') {
+          timeLeft--;
+          if (timeLeft <= 0) {
+            // Phase Transition
+            if (mode === 'focus') {
+              sessionsCompleted++;
+              mode = 'break';
+              timeLeft = breakDuration * 60;
+            } else if (mode === 'break') {
+              mode = 'idle';
+              timeLeft = focusDuration * 60;
+              clearInterval(timerInterval);
+            }
+          }
+          renderFocusUI();
+        }
+      }, 1000);
+    };
+
+    btnStartFocus.addEventListener('click', () => {
+      mode = 'focus';
+      timeLeft = focusDuration * 60;
+      isPaused = false;
+      showSettings = false;
+      renderFocusUI();
+      startTimerInterval();
+    });
+
+    btnStartBreak.addEventListener('click', () => {
+      mode = 'break';
+      timeLeft = breakDuration * 60;
+      isPaused = false;
+      showSettings = false;
+      renderFocusUI();
+      startTimerInterval();
+    });
+
+    btnToggleSettings.addEventListener('click', () => {
+      showSettings = !showSettings;
+      renderFocusUI();
+    });
+
+    btnPauseResume.addEventListener('click', () => {
+      isPaused = !isPaused;
+      renderFocusUI();
+    });
+
+    btnStop.addEventListener('click', () => {
+      mode = 'idle';
+      timeLeft = focusDuration * 60;
+      isPaused = false;
+      clearInterval(timerInterval);
+      renderFocusUI();
+    });
+
+    inputFocusDuration.addEventListener('change', (e) => {
+      focusDuration = Number(e.target.value) || 1;
+      if (mode === 'idle') {
+        timeLeft = focusDuration * 60;
+        renderFocusUI();
+      }
+    });
+
+    inputBreakDuration.addEventListener('change', (e) => {
+      breakDuration = Number(e.target.value) || 1;
+    });
+
+    // Handle Keyboard Shortcuts
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT') return;
+      
+      if (e.code === 'Space') {
+        e.preventDefault();
+        if (mode === 'idle') {
+          btnStartFocus.click();
+        } else {
+          btnPauseResume.click();
+        }
+      } else if (e.code === 'Escape') {
+        e.preventDefault();
+        if (mode !== 'idle') {
+          btnStop.click();
+        }
+      }
+    });
+
+    // Initialize Focus UI
+    renderFocusUI();
+
+  </script>
+</body>
+</html>
