@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <string>
+#include <vector>
 #include <cassert>
 
 // Simple unit tests for Focus App
@@ -38,11 +39,12 @@ int main() {
     assert(FormatTime(25 * 60) == L"25:00");
     assert(FormatTime(5 * 60 + 30) == L"05:30");
     
-    // Test IsProcessBlocked
+    // Define blocked apps for testing
     std::vector<std::wstring> blockedApps = {
         L"whatsapp", L"chrome", L"firefox", L"youtube"
     };
     
+    // Test IsProcessBlocked
     assert(IsProcessBlocked(L"whatsapp.exe", blockedApps) == true);
     assert(IsProcessBlocked(L"chrome.exe", blockedApps) == true);
     assert(IsProcessBlocked(L"firefox.exe", blockedApps) == true);

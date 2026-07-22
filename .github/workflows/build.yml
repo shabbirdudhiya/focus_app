@@ -20,9 +20,14 @@ jobs:
         choco install mingw -y --no-progress
         echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" >> $GITHUB_PATH
 
+    - name: Compile Tests
+      run: |
+        cd tests
+        g++ -static -static-libgcc -static-libstdc++ -D_UNICODE -DUNICODE -o test_basic.exe test_basic.cpp
+        cd ..
+
     - name: Run Unit Tests
       run: |
-        g++ -static -static-libgcc -static-libstdc++ -D_UNICODE -DUNICODE -o tests/test_basic.exe tests/test_basic.cpp
         .\tests\test_basic.exe
         echo "All tests passed!"
 
@@ -56,8 +61,8 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: focus_app.exe
-        name: Focus App v1.1
-        tag_name: v1.1
+        name: Focus App v1.2
+        tag_name: v1.2
         body: |
           Lightweight Windows focus app with modern design features.
           
@@ -71,5 +76,7 @@ jobs:
           - Task tracking
           - Session tracking with progress dots
           - Configurable durations
+          
+          All tests pass before building!
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
