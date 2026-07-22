@@ -61,7 +61,7 @@ jobs:
 
     - name: Create Release (on main branch)
       if: github.ref == 'refs/heads/main'
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: focus_app.exe
         name: Focus App v1.3
